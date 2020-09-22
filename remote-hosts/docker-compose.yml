@@ -1,0 +1,47 @@
+version: '3'
+services:
+    remote_host1:
+        container_name: remote-centos7
+        image: remote-centos7
+        build: 
+            context: centos7
+        networks: 
+          - net
+    remote_host2:
+        container_name: remote-ubuntu20
+        image: remote-ubuntu20
+        build: 
+            context: ubuntu20
+        networks: 
+          - net
+networks:
+    net:
+
+
+
+
+
+
+# $docker-compose build
+# $docker-compose up -d
+# Creating network "remote-hosts_net" with the default driver
+# Creating remote-centos7  ... done
+# Creating remote-ubuntu20 ... done       
+
+# docker run -d -P remote-ubuntu20
+# $docker ps  (Get the Port here.. 32771)
+# CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS
+#               PORTS               NAMES
+#               011b2b2ef75e        remote-ubuntu20     "/usr/sbin/sshd -D"   4 seconds ago        
+#               Up 3 seconds        0.0.0.0:32771->22/tcp   youthful_curie
+#$ ssh root@jenkins.cloudzone.today -p 32771
+# login with 'iaviiavi' password and enjoy.
+# $docker run -d -P remote-ubuntu20 
+# $docker ps
+# CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS
+#               PORTS                   NAMES
+# 17b389f90183        remote-centos7      "/usr/sbin/sshd -D"   9 seconds ago       Up 9 seconds        
+# 0.0.0.0:32772->22/tcp   keen_lewin
+# SSH to centos system with user ajay
+# ssh ajay@jenkins.cloudzone.today -p 32772
+# we can also use ssh-copy-id command to password less login.
