@@ -1,0 +1,14 @@
+[all:vars]
+
+ansible_connection = ssh
+ansible_private_key_file=/root/.ssh/id_rsa
+
+[ubuntu]
+ubuntu1 ansible_user=root
+
+[centos]
+centos1 ansible_user=root
+
+[linux]
+ubuntu1
+centos1

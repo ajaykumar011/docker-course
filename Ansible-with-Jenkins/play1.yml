@@ -1,0 +1,25 @@
+---
+    -
+     
+      # Target: where our play will run and options it will run with
+      hosts: linux
+      gather_facts: true
+     
+      # Variable: variables that will apply to the play, on all target systems
+    
+      # Task: the list of tasks that will be executed within the playbook
+      tasks:
+        - name: Test hostvars with an ansible fact and collect ansible_port, dot notation, default if not found
+          debug:
+            msg: "{{ hostvars[ansible_hostname].ansible_port | default('22') }}"
+    
+        - debug:
+            msg: System {{ inventory_hostname }} has uptime {{ ansible_uptime_seconds }}
+
+        - debug:
+            msg: System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}
+          when: ansible_default_ipv4.gateway is defined
+
+    # Three dots indicate the end of a YAML document
+...
+    
