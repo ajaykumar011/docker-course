@@ -141,30 +141,6 @@ pipeline {
             }
 
             }
-
-    stage('All-Environments') {
-        when { 
-            environment name: 'ENV-PRINT', value: 'Yes'
-            }
-        steps {
-            echo 'This will print all env variables'
-            sh 'printenv'
-
-            }
-    }
-
-    stage('no-env-print') {
-        when { 
-            environment name: 'ENV-PRINT', value: 'No' 
-            }
-        steps {
-            echo 'We are not printing anything'
-            echo "CURRENT BUILD: ${env.BUILD_URL}"
-            echo "Commit id: ${env.GIT_COMMIT}"
-            echo "Branch id: ${env.GIT_BRANCH}"
-                      
-        }
-    }
 }
 
     post {
