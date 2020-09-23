@@ -8,6 +8,7 @@ pipeline {
        
       options {
             timestamps()
+            ansiColor('xterm')
         }
     
     /*Clean before checkout removes the files created as part of build - say your test results etc - resets the files if they 
