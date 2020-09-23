@@ -51,8 +51,7 @@ pipeline {
     
     stage("script Variables") {
             steps {
-                    env.LS = sh(script:'ls -lah', returnStdout: true).trim()
-                    echo "LS = ${env.LS}"
+                    LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
                     // or if you access env variable in the shell command
                     sh 'echo $LS'
             }
