@@ -1,0 +1,162 @@
+pipeline {
+      agent any
+      environment {
+        MYSQL_PWD = "mydemoscret" 
+        //WEBPLATFORM = "Apache2" // This is just an example.
+        }
+      options {
+            timestamps()
+        }
+    
+    /*Clean before checkout removes the files created as part of build - say your test results etc - resets the files if they 
+    were updated & pulls the latest changes if they have been updated. 
+    This ensures that the workspace is in the same state as if you cloned and checked out in a brand-new empty directory.*/
+    
+    parameters {
+        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+        choice(name: 'WEBPLATFORM', choices: ['Apache2', 'Nginx'], description: 'Pick the environment to deploy')
+        }
+    
+  stages {
+    stage('Test-on-Apache2') {
+        when { 
+            environment name: 'WEBPLATFORM', value: 'Apache2' 
+            }
+        steps {
+            echo 'This will run on Apache2'
+            sh 'sh ./scripts/buildinfo.sh'
+            sh 'sh dockerbuild.sh'
+        }
+    }
+    stage('Test-on-Nginx') {
+        when { 
+            environment name: 'WEBPLATFORM', value: 'Nginx' 
+            }
+        steps {
+            echo 'This will run on Nginx'
+        }
+    }
+
+    stage('Dockerinfo') {
+        steps {
+            echo "This is build section"
+            //echo "This is env Variable:    ${env.MYSQL_PWD}"
+            echo "Here is the list of docker processes.."
+            echo '--------------------------------------------'
+            sh 'docker ps'
+            echo '---------------------------------------------'
+            sh 'docker images'
+            echo '---------------------------------------------'
+            sh 'netstat -tulnp'
+            echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+            echo 'Other build information are listed below'
+            echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+            echo "List all containers (only IDs)"
+            sh ' docker ps -aq'
+            echo "List of volumes: "
+            sh 'docker volume ls'
+            echo "List of networks"
+            sh 'docker network ls'
+            sh 'docker images -a'
+            sh 'curl -I localhost:82' // Site is running on port 82
+            }
+         }  
+            
+            // stage('Ex-credentials') {
+            //     steps {
+            //         withCredentials([
+            //          file(credentialsId: 'AWS_PEM', variable: 'AWS_KEY'),
+            //          usernamePassword(credentialsId: 'websearch_live_db', passwordVariable: 'DB_LIVE_PWD', usernameVariable: 'DB_LIVE_USER') 
+            //      ]) { 
+            //          echo "My password is '${DB_LIVE_PWD}'!"
+            //          echo "My key is '${AWS_Key}'"
+            //          echo "MY DB username is '${DB_LIVE_USER}"
+            //          sh "ssh -i $AWS_KEY ec2-user@13.126.214.145 ' mysqladmin processlist -u$DB_LIVE_USER -p$DB_LIVE_PWD'"
+
+            //      }
+            //  }
+            //  }
+
+    stage('Cleanup') {
+        steps {
+            echo "This stage only zip the artificates"
+            sh 'sh ./scripts/cleanup.sh'
+            }
+        }
+        // End of stages
+
+    stage('Confirmation') {
+            input {
+                message "Should we continue to Destroy all images of docker?"
+                ok "Yes, we should."
+                submitter "alice,bob"
+                parameters {
+                    string(name: 'PERSON', defaultValue: 'Mr Destroyer', description: 'Who should I say hello to?')
+                    choice(name: 'DESTROYDOCKER', choices: ['thiscomposer', 'all', 'nochange'], description: 'Pick yes the All docker to destroy')
+                }
+             }
+            steps {
+                echo "Hello, ${PERSON}, nice to meet you."
+                }
+            }
+
+    stage('Cleanup-this-composer') {
+        when { 
+            environment name: 'DESTROYDOCKER', value: 'thiscomposer' 
+            }
+        steps {
+            echo 'This will run on Apache2'
+            sh 'docker-compose down -v --rmi=all'
+        }
+    }
+
+    stage('DestroyProcess') {
+        when { 
+            environment name: 'DESTROYDOCKER', value: 'all' 
+            }
+        steps {
+            echo 'This will run on Apache2'
+            echo "The docker system prune command removes all stopped containers, dangling images, and unused networks:"
+            sh ' docker system prune -f'
+            echo "Stop all running containers"
+            sh ' docker stop $(docker ps -aq)'
+            echo "Remove all containers"
+            sh ' docker rm $(docker ps -aq)'
+            echo "Remove all images"
+            sh ' docker rmi $(docker images -q)'
+            sh 'docker volume prune -f'
+            sh 'docker network prune -f'
+            
+        }
+    }
+}
+    post {
+            always {
+                echo 'One way or another, I have finished'
+                // deleteDir() /* delete the working dir normally workspace */
+                //cleanWs() /* clean up workspace */
+                //archiveArtifacts artifacts: 'targetbuild-*.zip', followSymlinks: false, onlyIfSuccessful: true
+                }
+        
+            success {
+                echo 'Success'
+                slackSend channel: '#jenkins-builds',
+                color: 'good',
+                message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
+                }
+                  
+            unstable {
+                echo 'I am unstable :/'
+                }
+        
+            failure {
+                 mail to: 'ajay011.sharma@hotmail.com',
+                 cc: 'macme.tang@gmail.com',
+                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "Something is wrong with ${env.BUILD_URL}"
+                }
+            changed {
+             echo 'Things were different before...'
+                }   
+        }
+}

@@ -47,8 +47,8 @@ pipeline {
                 echo "ANOTHER_ENV_VAR = ${env.ANOTHER_ENV_VAR}"
                 }
             }
-        }
     }
+    
     stage("script Variables") {
             steps {
                     env.LS = sh(script:'ls -lah', returnStdout: true).trim()
@@ -56,7 +56,7 @@ pipeline {
                     // or if you access env variable in the shell command
                     sh 'echo $LS'
             }
-        }
+    }
     
     stage('Test-on-Centos') {
         when { 
@@ -83,7 +83,7 @@ pipeline {
         steps {
             echo "This stage only zip the artificates"
             }
-        }
+    }
         // End of stages
 
     stage('Confirmation') {
@@ -125,6 +125,7 @@ pipeline {
         }
     }
 }
+
     post {
             always {
                 echo 'One way or another, I have finished'
