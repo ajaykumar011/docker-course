@@ -4,9 +4,9 @@ pipeline {
         MYSQL_PWD = "mydemoscret" 
         //SERVERPLATFORM = "Centos" // This is just an example.
         LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
-        gitCommit = "{sh(returnStdout: true, script: 'git rev-parse HEAD').trim()}"
+        gitCommit = "${sh(returnStdout: true, script: 'git rev-parse HEAD').trim()}"
         // short SHA, possibly better for chat notifications, etc.
-        shortCommit = "{gitCommit.take(6)}"
+        shortCommit = "${gitCommit.take(6)}"
         }
        
       options {
