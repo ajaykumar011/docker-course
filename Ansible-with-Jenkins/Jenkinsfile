@@ -126,7 +126,18 @@ pipeline {
                 sh 'printenv'
                 }
             when { 
-            environment name: 'ENV-PRINT', value: 'Yes'
+                environment name: 'ENV-PRINT', value: 'Yes'
+            }
+
+            steps {
+            echo 'We are not printing anything'
+            echo "CURRENT BUILD: ${env.BUILD_URL}"
+            echo "Commit id: ${env.GIT_COMMIT}"
+            echo "Branch id: ${env.GIT_BRANCH}"
+                      
+                }
+            when { 
+                environment name: 'ENV-PRINT', value: 'No'
             }
 
             }
