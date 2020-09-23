@@ -133,16 +133,16 @@ pipeline {
                 //archiveArtifacts artifacts: 'targetbuild-*.zip', followSymlinks: false, onlyIfSuccessful: true
                 }
         
-            success {
-                echo 'Success'
-                slackSend channel: '#jenkins-builds',
-                color: 'good',
-                message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
-                }
+            // success {
+            //     echo 'Success'
+            //     slackSend channel: '#jenkins-builds',
+            //     color: 'good',
+            //     message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
+            //     }
                   
-            unstable {
-                echo 'I am unstable :/'
-                }
+            // unstable {
+            //     echo 'I am unstable :/'
+            //     }
         
             failure {
                  mail to: 'ajay011.sharma@hotmail.com',
