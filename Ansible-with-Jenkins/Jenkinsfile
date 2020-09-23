@@ -101,11 +101,11 @@ pipeline {
                 }
              }
             steps {
-                echo "Hello, ${PERSON}, nice to meet you."
+                echo "Hello, ${PERSON}, nice to meet you. Your choice is ${ENV-PRINT}"
                 }
             }
 
-    stage('print-env-all') {
+    stage('All-Environments') {
         when { 
             environment name: 'ENV-PRINT', value: 'Yes'
             }
@@ -116,7 +116,7 @@ pipeline {
             }
     }
 
-    stage('no-env-print') {
+    stage('Custom-Env') {
         when { 
             environment name: 'ENV-PRINT', value: 'No' 
             }
