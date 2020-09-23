@@ -79,8 +79,8 @@ pipeline {
             //LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
             // or if you access env variable in the shell command
               sh 'echo $LS'
-              sh 'echo $gitcommit'
-              sh 'echo $shortcommit'
+              sh 'echo $gitCommit'
+              sh 'echo $shortCommit'
         }
      }
     
