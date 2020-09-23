@@ -97,7 +97,7 @@ pipeline {
                 submitter "alice,bob"
                 parameters {
                     string(name: 'PERSON', defaultValue: 'Ajay Kumar', description: 'Who should I say hello to?')
-                    choice(name: 'ENVPRINT', choices: ['Yes', 'No', 'nochange'], description: 'Pick yes to display all')
+                    choice(name: 'ENV-PRINT', choices: ['Yes', 'No', 'nochange'], description: 'Pick yes to display all')
                 }
              }
             steps {
@@ -107,7 +107,7 @@ pipeline {
 
     stage('print-env-all') {
         when { 
-            environment name: 'ENVPRINT', value: 'Yes' 
+            environment name: 'ENV-PRINT', value: 'Yes'
             }
         steps {
             echo 'This will print all env variables'
@@ -118,7 +118,7 @@ pipeline {
 
     stage('no-env-print') {
         when { 
-            environment name: 'ENVPRINT', value: 'No' 
+            environment name: 'ENV-PRINT', value: 'No' 
             }
         steps {
             echo 'We are not printing anything'
