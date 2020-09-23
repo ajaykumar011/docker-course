@@ -63,7 +63,7 @@ pipeline {
             }
         steps {
             echo 'This will run on Centos'
-            sh 'ansible-playbook -i hosts play1.yml'
+            sh 'ansible-playbook -i Ansible-with-Jenkins/hosts Ansible-with-Jenkins/play1.yml'
             //sh 'sh dockerbuild.sh'
         }
     }
@@ -73,7 +73,7 @@ pipeline {
             }
         steps {
             echo 'This will run on Ubuntu'
-            sh 'ansible-playbook -i hosts play2.yml'
+            sh 'ansible-playbook -i Ansible-with-Jenkins/hosts Ansible-with-Jenkins/play2.yml'
         }
     }
 
