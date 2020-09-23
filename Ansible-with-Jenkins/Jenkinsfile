@@ -73,7 +73,7 @@ pipeline {
     // Not working
      stage("script Variables") {
          steps {
-            LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
+            //LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
     //                 // or if you access env variable in the shell command
                 sh 'echo $LS'
              }
