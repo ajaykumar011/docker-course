@@ -63,8 +63,10 @@ pipeline {
             }
         steps {
             echo 'This will run on Centos'
+            ansiColor('xterm') {
             sh 'ansible-playbook -i Ansible-with-Jenkins/hosts Ansible-with-Jenkins/play1.yml'
             //sh 'sh dockerbuild.sh'
+            }
         }
     }
     stage('Test-on-Ubuntu') {
@@ -73,7 +75,9 @@ pipeline {
             }
         steps {
             echo 'This will run on Ubuntu'
+            ansiColor('xterm') {
             sh 'ansible-playbook -i Ansible-with-Jenkins/hosts Ansible-with-Jenkins/play2.yml'
+            }
         }
     }
 
