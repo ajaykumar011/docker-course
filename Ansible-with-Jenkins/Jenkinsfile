@@ -1,0 +1,157 @@
+pipeline {
+      agent any
+      environment {
+        MYSQL_PWD = "mydemoscret" 
+        //SERVERPLATFORM = "Centos" // This is just an example.
+        LS = "${sh(script:'ls -lah', returnStdout: true).trim()}"
+        }
+       
+      options {
+            timestamps()
+        }
+    
+    /*Clean before checkout removes the files created as part of build - say your test results etc - resets the files if they 
+    were updated & pulls the latest changes if they have been updated. 
+    This ensures that the workspace is in the same state as if you cloned and checked out in a brand-new empty directory.*/
+    
+    parameters {
+        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+        choice(name: 'SERVERPLATFORM', choices: ['Centos', 'Ubuntu'], description: 'Pick the environment to run')
+        }
+    
+  stages {
+    stage("Env Variables") {
+        steps {
+            echo "The build number is ${env.BUILD_NUMBER}"
+            echo "You can also use \${BUILD_NUMBER} -> ${BUILD_NUMBER}"
+            sh 'echo "I can access $BUILD_NUMBER in shell command as well."'
+        }
+        
+    }
+    
+    stage("Custom Env Variables") {
+        environment {
+            NAME = "Alan"
+            }
+
+        steps {
+            echo "FOO = ${env.FOO}"
+            echo "NAME = ${env.NAME}"
+
+            script {
+                env.TEST_VARIABLE = "some test value"
+             }
+            echo "TEST_VARIABLE = ${env.TEST_VARIABLE}"
+
+            withEnv(["ANOTHER_ENV_VAR=here is some value"]) {
+                echo "ANOTHER_ENV_VAR = ${env.ANOTHER_ENV_VAR}"
+                }
+            }
+        }
+    }
+    stage("script Variables") {
+            steps {
+                    env.LS = sh(script:'ls -lah', returnStdout: true).trim()
+                    echo "LS = ${env.LS}"
+                    // or if you access env variable in the shell command
+                    sh 'echo $LS'
+            }
+        }
+    
+    stage('Test-on-Centos') {
+        when { 
+            environment name: 'SERVERPLATFORM', value: 'Centos' 
+            }
+        steps {
+            echo 'This will run on Centos'
+            sh 'ansible-playbook -i hosts play1.yml'
+            //sh 'sh dockerbuild.sh'
+        }
+    }
+    stage('Test-on-Ubuntu') {
+        when { 
+            environment name: 'SERVERPLATFORM', value: 'Ubuntu' 
+            }
+        steps {
+            echo 'This will run on Ubuntu'
+            sh 'ansible-playbook -i hosts play2.yml'
+        }
+    }
+
+    
+    stage('Cleanup') {
+        steps {
+            echo "This stage only zip the artificates"
+            }
+        }
+        // End of stages
+
+    stage('Confirmation') {
+            input {
+                message "Should we continue to Print all env variables?"
+                ok "Yes, we should."
+                submitter "alice,bob"
+                parameters {
+                    string(name: 'PERSON', defaultValue: 'Mr Destroyer', description: 'Who should I say hello to?')
+                    choice(name: 'ENVPRINT', choices: ['Yes', 'No', 'nochange'], description: 'Pick yes to display all')
+                }
+             }
+            steps {
+                echo "Hello, ${PERSON}, nice to meet you."
+                }
+            }
+
+    stage('print-env-all') {
+        when { 
+            environment name: 'ENVPRINT', value: 'Yes' 
+            }
+        steps {
+            echo 'This will print all env variables'
+            sh 'printenv'
+
+            }
+    }
+
+    stage('no-env-print') {
+        when { 
+            environment name: 'ENVPRINT', value: 'No' 
+            }
+        steps {
+            echo 'We are not printing anything'
+            echo "CURRENT BUILD: ${env.BUILD_URL}"
+            echo "Commit id: ${env.GIT_COMMIT}"
+            echo "Branch id: ${env.GIT_BRANCH}"
+                      
+        }
+    }
+}
+    post {
+            always {
+                echo 'One way or another, I have finished'
+                // deleteDir() /* delete the working dir normally workspace */
+                //cleanWs() /* clean up workspace */
+                //archiveArtifacts artifacts: 'targetbuild-*.zip', followSymlinks: false, onlyIfSuccessful: true
+                }
+        
+            success {
+                echo 'Success'
+                slackSend channel: '#jenkins-builds',
+                color: 'good',
+                message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
+                }
+                  
+            unstable {
+                echo 'I am unstable :/'
+                }
+        
+            failure {
+                 mail to: 'ajay011.sharma@hotmail.com',
+                 cc: 'macme.tang@gmail.com',
+                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "Something is wrong with ${env.BUILD_URL}"
+                }
+            changed {
+             echo 'Things were different before...'
+                }   
+        }
+}
